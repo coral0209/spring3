@@ -1,0 +1,12 @@
+spring 설정
+1. xml , 
+2. java 
+3. java + xml 
+** 설정파일을 용도에 따라여러개로 분리하는 것도 가능 
+
+
+
+에러
+compiler 시점 - 로딩(서버 기동) 시점 - 실행을 해야만 발생하는 에러(Runtime)
+xml 은 compile 이 없어서 로딩시점이나 runtime 에서 오류를 알려준다. 
+자바를 하는이유 (위)

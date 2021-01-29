@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- userDao 와 userService 를 만드는데 스프링을 통해 관리.  -->
+
+	<!-- bean : 스프링 빈을 선언할 떄 사용
+		id : 스프링 컨테이너에서 관리할 때 사용할 스프링 빈의 이름 - 중복이 되면 안된다. 
+			class : 해당 스프링 빈을 생성하기 위한 구현채 클래스 full name
+	
+	 -->
+	 
+	 <!-- userDao 스프링 빈 선언 구현체 써주기 
+	 userDaoImpl userDao = new UserDaoImpl(); 과 동일 
+	 -->
+	 <bean id="userDao" class="kr.or.ddit.user.repository.UserDaoImpl"/>
+	 
+	<!-- userService 스프링 빈 선언 
+		UserService userService = new UserServiceImpl(); 
+		userService.getUser("brown"); ==> ?? 
+		
+		property == filled, setter 
+			value = 문자열 , 숫자 필요할때 
+			ref = 다른 spring bean 쓸 때 주입 받고 싶은 스프링 빈 이름을 기술 
+		property 엘레먼트를 이용하여 다른 스프링 빈을 (DI - Dependency Injection) 주입 
+		UserService userService = new UserServiceImpl(); 
+		userService.setUserDao(userDao); 
+	-->
+	<bean id="userService" class="kr.or.ddit.user.service.UserServiceImpl">
+		<property name="userDao" ref="userDao" />	 
+	</bean>
+
+	<!-- 위에서는 setter 주입이었다.  -->
+	<!-- 생성자 주입 -->
+	<!-- id 중복되면안됨> -->
+	<!-- 인자가 두개이상있을수도 있어 , 타입도 가능 인덱스가 필요해 (인덱스가 없다면 꼬일 수가 있다. ) -->
+	<bean id="userServiceCons" class="kr.or.ddit.user.service.UserServiceImpl">
+		<constructor-arg ref="userDao"></constructor-arg>
+	
+	</bean>
+	
+	
+	<!-- prototype : 해당 빈을 dl , di 할 때마다 매번 새롭게 만든 객체를 반환 -->
+	<bean id="userServiceProtoType" class="kr.or.ddit.user.service.UserServiceImpl" scope="prototype">
+		<property name="userDao" ref="userDao" />	 
+	</bean>
+	
+	
+	<!-- list, set , map 컬렉션 객체를 스프링 빈으로 등록 property 는 setter 로 주입흥 하겠다. (setter 가 있어야함 클래스에)-->
+	<bean id="collectionBean" class="kr.or.ddit.ioc.CollectionBean" scope="">
+		<property name="list">
+			<list>
+				<value>brown</value>
+				<value>sally</value>
+				<value>cony</value>
+			</list>
+		
+		
+		</property>
+		
+		<!-- key ref 는  -->
+		<property name="map">
+			<map>
+				<entry key="userid" value="brown"></entry>
+				<entry key="usernm" value="브라운"></entry>
+				<!-- value-ref :  -->
+			</map>
+		
+		</property>
+		<property name="set">
+			<set>
+				<value>brown</value>
+				<value>sally</value>
+				<value>cony</value>
+			</set>
+		</property>
+		
+		
+		
+		<property name="properties">
+			<props>
+			<prop key="userid">brown</prop>
+			<prop key="usernm">브라운</prop>
+			
+			
+			</props>
+		
+		
+		</property>
+		
+		
+		
+		
+	</bean>
+	
+	<!-- properties 파일의 값을 스프링 빈의 값으로 주입하기 -->
+	<!-- property-placeholder 는 설정한 파일의 값만 로딩하는 것이 아니라 os 의 환경변수도 같이 로딩한다. 
+	dbinfo.properties 에 선언한 username 속성은 os 의 사용자 이름에 해당하는 환경변수와 겹친다. 
+	property-placeholder의 system-properties-mode 속성을 "NEVER" 로 설정한 경우
+	system property 는 로딩하지 않고 location 에 지정한 파일에서만 속성을 로딩한다.   -->
+	<!--  context namespace 추가하기 property 에 담겨두기 위해서 value="${}"-->
+	<!-- system-properties-mode="NEVER" -->
+	<!--  -->
+	
+	<context:property-placeholder location="classpath:kr/or/ddit/config/db/dbinfo.properties"
+	/>
+	<bean id="dbConfig" class="kr.or.ddit.ioc.DbConfig">
+		<property name="driverClassName" value="${jdbc.driverClassName}"></property>
+		<property name="url" value="${jdbc.url}" ></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	
+	</bean>
+	
+</beans>
