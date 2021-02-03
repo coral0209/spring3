@@ -1,0 +1,205 @@
+	-----> 2021 . 02. 01
+	
+	DispatcherServlet ==> MockMvc 생성을 위해서 WebApplicationContext 객체가 필요하다. 
+	WebApplicationContext -> 스프링 프레임워크에서 ioc 컨테이너 생성시 자동으로 생성. 
+	주입받을 때 -> 
+	Autowired 의 기본설정 : 타입이 해당 필드에 대입을 할 수 있는 경우 
+	
+	mock mvc 를 만들기 위함 . 
+	자동으로 생성이 안되서 우리가 직접 만들어야 한다. 
+	
+	
+	//앞으로 테스트 코드 작성방법
+	controller ==> 1. WebTestConfig 클래스를 상속받는 junit 클래스를 생성한다. 
+				   2. mockMvc 객체를 이용하여 테스트 코드 작성 
+	service, repository ==> 1. ModelTestConfig 클래스를 상속 받는 junit 클래스를 생성
+							2. 테스트 대상 스프링 빈을 주입받아 테스트 코드 작성. 
+							
+							
+
+실습 
+lOGIN 기능 마이그레이션 (JSP/SERVLET  =>SPRING ) 
+1. 로그인 화면 요청 
+  .jsp 의 위치 (Webapp/....) ==> webapp/WEB-INF/views (보안. url 로 접근이 안되는 곳에다가 넣어놨어. )
+  			commons/header.jsp , left.jsp , common_lib.jsp 
+	
+	webapp/login.jsp => 	webapp/WEB-INF/views/login.jsp
+	webapp/common.jsp => 	webapp/WEB-INF/views/common/*.jsp
+	
+	
+login 화면 요청 처리 controller ----spring 작업----
+1.kr.or.ddit.login.LoginController 생성
+2. @Controller 등록 
+3. @RequestMapping ==> class? method? 
+	기존 : @WebServlet("/loginController") 
+	변경 : login/view => localhost/login/view 
+
+
+4. method 구현 (login.jsp forward)
+	해당 요청을 처리하기 위해 파라미터 필요한가 ? ==> 필요없음 
+	
+	요청 위임(servlet)
+	req.getRequestDispatcher("/login.jsp").forward(req, resp);
+	
+	요청 위임(spring) 
+	메소드 반환 문자열(view name) 
+		/WEB-INF/views/ + 메소드 반환 뷰네임 + .jsp 
+		/WEB-INF/views/login.jsp 
+		-> login 값을 리턴해야한다. 
+		
+	
+//서버를 기동하지않고 -> 구동-> spring 의 장점 
+
+ <welcome-file>index.jsp</welcome-file> -> localhost 입력만하면 웰컴파일로 간다. 
+	
+	
+	
+controller 테스트 코드 구현시 사용하는 메소드
+-perform 
+	get() , post() fileUpload() 
+	param("파라미터명" ,"파라미터값" )	
+	
+	.addExpect 
+		status() , model() , view() 
+	.addReturn() => MvcResult 객체를 반환
+					//model 객체랑 view 를 가지고 내부적으로 modelAndView 객체를 만든다. 
+					mvcResult.getModelAndView() 
+	
+	.andDo() => 부가적인 작업 (결과출력)
+	
+	
+	파라미터가 있는 스프링 컨트롤러 
+	LoginController : 로그인 요청 처리 메소드 개발 
+	
+	1. userVo 준비(작성 안한 필드 추가 ) 
+	2. webapp/main.jsp => webapp/WEB-INF/views/main.jsp 로 복사 
+	3. 로그인 처리 로직 작성(메소드) 
+		3-1 . 파라미터 작업
+			기존 : request.getParameter("userid")
+			1. 파라미터가 몇개 없어서 value object 를 사용하지 않는 경우 
+			 스프링 컨트롤러 메소드에 파라미터와 동일한 이름의 인자를 선언
+			 스프링 mvc 모듈에서 request 객체의 파라미터를 메소드 인자로 자동 바인딩 한다. 
+			2. 파라미터를 담을 value object 가 있는 경우
+				value object 를 스프링 메소드 인자로 선언
+				파라미터 이름과 value object 의 필드의 이름이 동일한 경우 자동으로 바인딩 
+		
+			  
+			
+		3-2 로그인 성공시
+			세션객체에 S_USER 속성으로 사용자 정보를 VO 객체를 저장  
+			기존  : HttpSession session =  request.getSession()
+			session.setAttribute("S_USER" , userVo); 
+			=> 스프링 컨트롤러 메소드에 추가할 수 있는 인자 타입 
+			servlet api : HttpServletRequest , HttpServletResponse , HttpSession 
+						  applicaion => getServletContext() {서블릿에서만} 
+			
+			
+			
+		3-3 . 로그인 실패시 
+			login.jsp 로 리다이렉트
+			기존 : response.sendRedirect("/login.jsp")	
+			
+			==> spring 에서는 컨트롤러 메소드가 viewName 을 반환하게 되어 있음
+			redirect 에 대한 viewName : "redirect: " + 리다이렉트 주소 
+			
+			
+			스프링 컨트롤러 메소드 인자
+			1. servlet Api - 3개
+			2. value object - Spring 에서는 Command 객체 / form 객체 : form 전송을 통해 보내진 파라미터를 받는 객체 ,
+				 primitive type , 개별 객체(String , Date ) 
+			2.5 ErrorBindingResult : validation 검증시 에러 메세지를 저장
+					****규칙
+					해당 value 객체 다음에 이어서 메소드 인자로 선언 해야한다. 
+					public String process(UserVo userVo , binding 객체 ) 0 
+					public String process(UserVo userVo , HttpSession session , binding 객체 ) x -> value 객체 다음에 와야해 바인딩변수  
+			3. model - 속성 담을 때 (request scope) 
+
+			4.Reader/Writer , Input/OutputStream 
+			
+			servlet 에서 html 응답 생성 : Writer
+			파일 다운로드 응답 : OutputStream 
+			
+			사용자요청정보(파일업로드) : InputStream
+			basicServlet 	
+			
+			5. RedirectAttributes : 리다이렉트 페이지에 1회성 속성 전달 
+				request.setAttribute("msg" , "에러발생");
+				response.sendRedirect("리다이렉트.jsp"); -> request 로 설정했어서 , response 로 간거에서는 메시지를 읽지 못한다. 
+				
+				리다이렉트.jsp 에서 msg 속성 조회 ?? 
+				
+				
+			
+	
+	
+스프링 컨트롤러 메소드 반환 타입 
+
+1. String : viewName 
+2. ModelAndView  : 모델과 뷰 객체가 합쳐진 객체
+3. view 객체 
+5. void  : response , outPutStream 을 통해 개발자가 직접 응답 생성한 경우 
+	-> 파일 다운로드 
+	
+스프링 컨트롤러에서 사용 가능한 어노테이션 
+
+@Controller 
+@RequestMapping  
+
+@RequestMapping("url") => path 저장한것 @RequestMapping(path="url")
+
+
+1. Url = path 
+2. HTTP 메소드 제한 : 
+3. 파라미터 제한 : params 
+	//특정 파라미터의 값이 정해진 값과 일치 할 때만 해당 요청을 처리한다. 
+	params = {"userid = brown" , }
+	ex ) @RequestMapping(path="view" , method = {RequestMethod.GET} , params = ) 
+AJAX : 
+4. 요청 content-type 제한 : consumes 
+	consumes="application/json" => 요청을 json 문자열로 보냈을 때만 처리 
+5. 응답 허용 CONTENT-TYPE , Accept 제한 : 응답으로 json 요청일 때만 처리 
+	produces="application/json"
+6. 특정 헤더 제한 : 
+	headers ="Content-Type=text/plain"
+5. 응답 허용 content-type  , ACCEPT 제한 :  
+
+
+
+
+--spring / mybatis 를 연동하려고 한다. 
+
+
+예전 
+MybatisUtil , getSqlSession() 
+
+spring 
+
+	sqlSession 객체에 해당하는 sqlSessionTemplate 객체를 dao 객체에 주입받아서 사용
+	
+	sqlSessionTemplate => sqlSessionFactoryBean => 1.설정파일 필요 (메퍼파일) , 2. Datasource 
+	장점 : 트랜잭션을 제어할 필요가 없다. 
+	 
+	 
+	 mybatis 파일 복사해오기 
+	 mvc 에서 	
+	 <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+	<dependency>
+	    <groupId>org.mybatis</groupId>
+	    <artifactId>mybatis-spring</artifactId>
+	    <version>2.0.6</version>
+	</dependency>
+	 
+	가져오기 
+	
+	
+	
+실습
+
+사용자 전체 리스트 개발 URL : user/allUser 
+1. spring controller 생성 : kr.or.ddit.user.web.UserController 
+2. 필요한 스프링 빈 : userService 
+3. allUser.jsp  
+webapp/user/allUser.jsp ==> webapp/WEB-INF/user/allUser.jsp 
+model 객체에다 담는다. (조심하기 request 대신) {list 넣기}
+test 코드 만들기. 
+UserControllerTest 생성, allUser 메소드 테스트 

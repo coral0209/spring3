@@ -1,30 +1,23 @@
 package kr.or.ddit.ioc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import kr.or.ddit.user.service.UserService;
 
-@ContextConfiguration(locations=
-					{"classpath:/kr/or/ddit/ioc/ioc.xml",
-					 "classpath:/kr/or/ddit/config/spring/datasource-context.xml"})
+
+
+@ContextConfiguration("classpath:/kr/or/ddit/ioc/ioc.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
-public class IocTest {
-	
-	//@Resource(name="userService")
-	//************************************************
-	// ∞¥√º ¿Ã∏ß¿ª ∫Ø∞ÊΩ√ Autowired∞° Ω«∆–«œ¥¬ ∫Œ∫– √ﬂ»ƒ »Æ¿Œ
-	//************************************************
-	@Autowired
+public class iocTest {
+
+	@Resource(name="userService")
 	private UserService userService;
 	
 	@Resource(name="userService")
@@ -33,61 +26,73 @@ public class IocTest {
 	@Resource(name="userServiceCons")
 	private UserService userServiceCons;
 	
-	@Resource(name="userServicePrototype")
-	private UserService userServicePrototype;
+	//userServiceCons Ïä§ÌîÑÎßÅ ÎπàÏù¥ Ï†ïÏÉÅÏ†ÅÏúºÎ°ú ÏÉùÏÑ± ÎêòÏóàÎäîÏßÄ ÌÖåÏä§Ìä∏ 
 	
-	@Resource(name="userServicePrototype")
-	private UserService userServicePrototype2;
+	@Resource(name="userServiceProtoType")
+	private UserService userServiceProtoType; 
+	
+	@Resource(name="userServiceProtoType")
+	private UserService userServiceProtoType2; 
 	
 	@Resource(name="dbConfig")
-	private DbConfig dbConfig;
-
-	// userServiceCons Ω∫«¡∏µ ∫Û¿Ã ¡§ªÛ¿˚¿∏∑Œ ª˝º∫ µ«æ˙¥¬¡ˆ ≈◊Ω∫∆Æ
+	private DbConfig dbconfig;
+	
 	@Test
 	public void userServiceConsTest() {
 		/***Given***/
 		
+
 		/***When***/
 
 		/***Then***/
 		assertNotNull(userServiceCons);
+	
 	}
+	
+	
+	@Test
+	public void banScopeTest() {
+		/***Given***/
+		
+
+		/***When***/
+
+		/***Then***/
+		//ÎîîÏûêÏù∏ Ìå®ÌÑ¥Ïùò singletone Ìå®ÌÑ¥ Í∞úÎÖêÏúºÎ°ú Î≥¥Î©¥ ÎëêÍ∞úÏùò Í∞ùÏ≤¥Îäî Ìïú ÌÅ¥ÎûòÏä§Î°úÎ∂ÄÌÑ∞ ÎÇòÏôîÍ∏∞ ÎïåÎ¨∏Ïóê ÎèôÏùº Ìï¥ÏïºÌï®
+	assertEquals(userService, userServiceCons);
+	
+
+	}
+	
 
 	@Test
-	public void beanScopeTest() {
-		
-		//µ¿⁄¿Œ ∆–≈œ¿« signleton ∞≥≥‰¿∏∑Œ ∫∏∏È µŒ∞≥¿« ∞¥√º¥¬ «— ≈¨∑°Ω∫∑Œ ∫Œ≈Õ ≥™ø‘¿∏π«∑Œ µø¿œ «ÿæﬂ«‘
-		//«œ¡ˆ∏∏ Ω∫«¡∏µ¿« singleon ∞≥≥‰¿∫ bean ø§∑π∏‡∆Æ∏¶ ±‚¡ÿ¿∏∑Œ «œ≥™¿« ∞¥√º∞° ª˝º∫µ»¥Ÿ
-		assertNotEquals(userService, userServiceCons);		
+	public void banScopeTest2() {
+	
+	//ÎèôÏùºÌïú Ïä§ÌîÑÎßÅ ÎπàÏùÑ Ï£ºÏûÖÎ∞õÏïòÏúºÎØÄÎ°ú userService ÏôÄ userService2 Îäî Í∞ôÏùÄ Í∞ùÏ≤¥Îã§. 
+	assertEquals(userService, userService2);
 	}
 	
+	
+	//scope Í∞Ä singleton prototype Ïù¥ÎÉê , Ïù∏ÏßÄÏóê Îî∞ÎùºÏÑú ÏÉàÎ°≠Í≤å ÏÉùÏÑ±ÎêòÎäîÏßÄ Í≥ÑÏÜç ÏûàÎäîÏßÄÍ∞Ä Îã¨ÎùºÏßê . 
+
 	@Test
-	public void beanScopeTest2() {
-		
-		//µø¿œ«— Ω∫«¡∏µ ∫Û¿ª ¡÷¿‘πﬁæ“¿∏π«∑Œ userService, userService2¥¬ ∞∞¿∫ ∞¥√º¥Ÿ
-		assertEquals(userService, userService2);
+	public void beanScopePrototypeTest2() {
+	
+	//ÎèôÏùºÌïú userServiceProtype ÎπàÏùÑ Ï£ºÏûÖ(scope : prototype) 
+	// -> Îäò ÏÉùÏÑ±Ìï¥Ï§ÄÎã§. 
+	assertNotEquals(userServiceProtoType, userServiceProtoType2);
 	}
 	
-	@Test
-	public void beanScopePrototypeTest() {
-		//µø¿œ«— userServicePrototype ∫Û¿ª ¡÷¿‘ (scope : prototype)
-		assertNotEquals(userServicePrototype, userServicePrototype2);
-	}
 	
 	@Test
 	public void propertyPlaceholderTest() {
-		assertNotNull(dbConfig);
-		assertEquals("sem", dbConfig.getUsername());
-		assertEquals("java", dbConfig.getPassword());
-		assertEquals("jdbc:oracle:thin:@localhost:1521:xe", dbConfig.getUrl());
-		assertEquals("oracle.jdbc.driver.OracleDriver", dbConfig.getDriverClassName());
+		
+	assertNotNull(dbconfig);
+	assertEquals("team3_202008m", dbconfig.getUsername());
+	assertEquals("oracle.jdbc.driver.OracleDriver", dbconfig.getDriverClassName());
+	assertEquals("jdbc:oracle:thin:@112.220.114.130:1521:xe", dbconfig.getUrl());
+	assertEquals("java", dbconfig.getPassword());
+		
 	}
+
 }
-
-
-
-
-
-
-
-
