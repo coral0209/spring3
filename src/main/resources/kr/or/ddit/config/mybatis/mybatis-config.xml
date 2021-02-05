@@ -7,9 +7,16 @@
 	<typeAliases>
 		<typeAlias type="kr.or.ddit.user.model.UserVo" alias="userVo"/>
 		<typeAlias type="kr.or.ddit.common.model.PageVo" alias="pageVo"/>
+		<typeAlias type="kr.or.ddit.middle.spring.vo.ChargeVO" alias="chargeVo"/>
+		<typeAlias type="kr.or.ddit.middle.spring.vo.RecipeReviewVO" alias="recipereviewVo"/>
+		<typeAlias type="kr.or.ddit.middle.spring.vo.RecipeVO" alias="recipeVO"/>
+		<typeAlias type="kr.or.ddit.middle.spring.vo.UserVO2" alias="userVo2"/>
+		
 	</typeAliases>
 	
   <mappers>
     <mapper resource="kr/or/ddit/config/mybatis/mapper/users.xml"/>
+ <mapper resource="kr/or/ddit/config/mybatis/mapper/user.xml"/> 
+     <mapper resource="kr/or/ddit/config/mybatis/mapper/recipe.xml"/>
   </mappers>
 </configuration>

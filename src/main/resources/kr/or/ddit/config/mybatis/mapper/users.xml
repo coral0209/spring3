@@ -14,7 +14,7 @@
   <select id="selectUser" resultType="userVo" parameterType="String">
   	SELECT *
   	FROM users
-  	WHERE userid = #{value}
+  	WHERE userid = #{userid,jdbcType=VARCHAR}
   </select>
   
 	<select id="selectPagingUser" resultType="userVo"
@@ -38,21 +38,21 @@
   	
   	<!-- 사용자 정보 수정 -->
   	<update id="modifyUser" parameterType="userVo">
-	  	UPDATE users SET usernm = #{usernm},
-	                 pass = #{pass},
-	                 reg_dt = #{reg_dt},
-	                 alias = #{alias},
-	                 addr1 = #{addr1},
-	                 addr2 = #{addr2},
-	                 zipcode = #{zipcode}
-		WHERE userid = #{userid}
+	  	UPDATE users SET usernm = #{usernm ,jdbcType=VARCHAR},
+	                 pass = #{pass,jdbcType=VARCHAR},
+	                 reg_dt = #{reg_dt,jdbcType=VARCHAR},
+	                 alias = #{alias,jdbcType=VARCHAR},
+	                 addr1 = #{addr1,jdbcType=VARCHAR},
+	                 addr2 = #{addr2,jdbcType=VARCHAR},
+	                 zipcode = #{zipcode,jdbcType=VARCHAR}
+		WHERE userid = #{userid,jdbcType=VARCHAR}
   	</update>
   	
   	<!-- 사용자 정보 등록 -->
   	<insert id="registUser" parameterType="userVo">
   		INSERT INTO users 
   			   	   (userid, usernm, pass, reg_dt, alias, addr1, addr2, zipcode, filename, realfilename)
-  			VALUES (#{userid}, #{usernm}, #{pass}, #{reg_dt}, #{alias}, #{addr1}, #{addr2}, #{zipcode}, #{filename}, #{realfilename})
+  			VALUES (#{userid,jdbcType=VARCHAR}, #{usernm,jdbcType=VARCHAR}, #{pass,jdbcType=VARCHAR}, #{reg_dt,jdbcType=VARCHAR}, #{alias,jdbcType=VARCHAR}, #{addr1,jdbcType=VARCHAR}, #{addr2,jdbcType=VARCHAR}, #{zipcode,jdbcType=VARCHAR}, #{filename,jdbcType=VARCHAR}, #{realfilename,jdbcType=VARCHAR})
   	</insert>
   	
   	<!-- 사용자 삭제 -->

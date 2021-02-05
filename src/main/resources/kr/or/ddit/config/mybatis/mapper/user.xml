@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">	
+	
+	
+
+<mapper namespace = "user">
+
+	<!-- 로그인시 아이디 비밀번호가 테이블에 존재하는지 여부 -->
+	
+	<select id="loginCheckSelect" parameterType="String" resultType="String"  >
+		select pass
+		from member3 
+		where id = #{id}
+	</select>
+	
+	<!-- id찾기 -->
+   <select id="searchid" parameterType="userVo" resultType="string">
+      select id from member3 where name = #{name} and email = #{email}
+   </select>
+   <!-- pass찾기 -->
+   <select id="searchPass" parameterType="userVo" resultType="string">
+      select pass from member3 where id = #{id} and email = #{email}
+   </select>
+	
+	
+	<!-- 로그인시 마지막 로그인일자를 매번 sysdate update 필요 , 장기미사용자구별목적 -->
+	
+	<update id="loginDateUpdate" parameterType="String">
+		update member3 set lastlogin = sysdate where id = #{id} 
+	</update>
+	
+	<!-- 로그인시 일반/요리사/관리자인지 구별 -->
+	
+	<select id="loginGradeCodeSelect" parameterType="String" resultType="String" >
+		SELECT gradecode(회원구분코드) 
+		FROM member3
+		WHERE id = #{id} 
+	</select>
+	
+	
+	<!-- 회원가입 정보 등록 -일반회원과 메니저 모두 사용 ( 아래아래 charge테이블 insert 반드시 같이 코딩 해주세요) -->
+	
+	<insert id="joinInsertA" parameterType="userVo" >
+		INSERT INTO member3 VALUES ( #{id}, #{name}, #{pass}, #{email}, #{phone}, 
+									#{gradecode} , 0 , sysdate , #{zip} , #{addr1} , #{addr2} , NULL )
+	</insert>
+	
+	<!--  회원가입 정보 등록 - 요리사  ( 아래 charge테이블 insert 반드시 같이 코딩 해주세요)-->
+		
+	<insert id="joinInsertC" parameterType="userVo">
+		INSERT INTO member3 VALUES ( #{id}, #{name}, #{pass}, #{email}, #{phone}, 
+									'c' , 0 , sysdate , #{zip} , #{addr1} , #{addr2} , #{work_cod} )
+	</insert>
+	
+	
+	
+	<!-- 위에 회원가입 정보 등록 insert 실행시  반드시 charge테이블에 각각 회원의 포인트를 0 으로 셋팅 필요 -->
+	
+	<insert id="joinChargeInsert" parameterType="String" >
+		INSERT INTO charge values ( #{id} , '0', sysdate)
+	</insert>
+	
+	
+	<!-- 아이디 찾기 - 이메일값필요 -->
+	<select id="findIdSelectE" parameterType="String" resultType="String"  >
+		SELECT id
+		FROM member3
+		WHERE email = #{email}
+	</select>
+		
+	<!-- 아이디 찾기 - 전화번호값필요 -->
+	<select id="findIdSelectT" parameterType="String" resultType="String" >
+		SELECT id
+		FROM member3
+		WHERE phone = #{phone}
+	</select>
+	
+
+	
+	<!-- 비밀번호 찾기 이메일/아이디값필요 -->
+	<select id="findPass" parameterType="userVo" resultType="String" >
+		SELECT pass
+		FROM member3
+		WHERE  email = #{email}
+		AND id = #id#
+	</select>
+	
+	
+	<!-- 회원 1명의 정보 조회 아이디값필요 -->
+	<select id="viewOneMemSelect"  parameterType="String"   resultType="userVo2" >
+        SELECT  name, email, phone ,  
+				DECODE (gradecode , 'a' , '일반회원' , 'c' , '요리사' , 'm' , '관리자') "회원구분" , 
+				point , lastlogin  , zip || addr1 || addr2 "주소" , work_cod
+		FROM member3
+        WHERE id = #{id , jdbcType=VARCHAR}
+	
+	</select>
+	
+	
+	<!-- 구매횟수에 따른 회원분류 ( 다이아몬드/사파이어/골드/실버/일반) 아이디값필요  -->
+	<select id="memberGradeSelect" parameterType="String" >
+		SELECT ( CASE WHEN COUNT(order_cod) >= '200' THEN '다이아몬드' 
+                      WHEN COUNT(order_cod) >= '150' THEN '사파이어'
+					  WHEN COUNT(order_cod) >= '100' THEN '골드'
+                      WHEN COUNT(order_cod) >= '50' THEN '실버'
+                      WHEN COUNT(order_cod) >= '0' THEN '일반'
+                     ELSE 'VVIP' 
+                     END ) grade 
+		FROM order3
+		WHERE order_status = 'd' AND id = #{id}
+		GROUP BY id
+	</select>
+
+
+	<!-- 회원정보 수정 - 패스워드 변경 -->
+	<update id="updatePass" parameterType="userVo" >
+		UPDATE member3 SET pass = #{pass} WHERE id = #{id} 
+	</update>
+
+	<!-- 회원정보 수정 - 이메일 변경 -->
+	<update id="updateEmail">
+		UPDATE member3 SET email = #{email} WHERE id = #{id}
+	</update>
+	
+	<!-- 회원정보 수정 - 전화번호 변경 -->
+	
+	
+		
+
+
+
+
+	
+	
+
+
+</mapper>

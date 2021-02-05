@@ -10,13 +10,13 @@
 	$(function() {
 		$("#modifyBtn").on("click", function() {
 			$("#frm").attr("method", "get");
-			$("#frm").attr("action", "${cp }/user/modify");
+			$("#frm").attr("action", "${cp }/user/modifyTiles");
 			$("#frm").submit();
 		});
 
 		$("#deleteBtn").on("click", function() {
 			$("#frm").attr("method", "post");
-			$("#frm").attr("action", "${cp }/user/delete");
+			$("#frm").attr("action", "${cp }/user/deleteTiles");
 			$("#frm").submit();
 		});
 	})
@@ -25,10 +25,10 @@
 
 
 <form class="form-horizontal" id="frm" role="form">
-	<input type="hidden" name="userid" value="${user.userid }" />
+	<input type="hidden" name="userid" value="${user.userid}" />
 
 	<div class="form-group">
-		<label class="col-sm-2 control-label">사용자 사진</label>
+		<label class="col-sm-2 control-label">사용자 사진tiles</label>
 		<div class="col-sm-10">
 			<%-- 							<img src="${cp }/profile/${user.userid }.png"/> --%>
 

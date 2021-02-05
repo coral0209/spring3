@@ -28,11 +28,13 @@ public class PerformanceCheckInterceptor extends HandlerInterceptorAdapter{
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
 		
+		
 		//controller 메소드가 실행된 이후 실행되는 영역
 		long endTime = System.nanoTime();
 		long startTime = (long)request.getAttribute("startTime");
 		
-		logger.debug("duration : {}", endTime-startTime );
+		//request.getRequestUri() 를 통해서 어떤 요청처리인지 확인 할 수 있다. 
+		logger.debug("uri : {} , duration : {}", request.getRequestURI() ,  endTime-startTime );
 	}
 }
 

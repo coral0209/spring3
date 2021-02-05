@@ -1,0 +1,4 @@
+#main_popup_ {position:fixed; top:20px; left:50%; margin-left:-140px; width:280px; height:545px; z-index:99999;}
+@media (min-width: 1200px) {
+#main_popup_ {top:120px;}
+}

@@ -28,15 +28,15 @@ public class UserVo_ {
 	@NumberFormat(pattern = "#,###")
 	private int price;
 	
-	public UserVo() {}
+	public UserVo_() {}
 	
 	
-	public UserVo(String userid, String usernm, String pass) {
+	public UserVo_(String userid, String usernm, String pass) {
 		setUserid(userid);
 		setUsernm(usernm);
 		setPass(pass);
 	}
-	public UserVo(String userid, String usernm, String pass, Date reg_dt,
+	public UserVo_(String userid, String usernm, String pass, Date reg_dt,
 			  String alias, String addr1, String addr2, String zipcode,
 			  String filename, String realfilename) {
 		this.userid = userid;

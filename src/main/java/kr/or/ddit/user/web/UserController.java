@@ -43,13 +43,13 @@ public class UserController {
 	@Resource(name="userService")
 	private UserService userService;
 
-	@RequestMapping("allUser")
-	public String allUser(Model model) {
-		
-		model.addAttribute("userList", userService.selectAllUser());
-
-		return "user/allUser";
-	}
+	/*
+	 * @RequestMapping("allUser") public String allUser(Model model) {
+	 * 
+	 * model.addAttribute("userList", userService.selectAllUser());
+	 * 
+	 * return "user/allUser"; }
+	 */
 	
 	@RequestMapping("allUserTiles")
 	public String allUserTiles(Model model) {
@@ -60,17 +60,18 @@ public class UserController {
 	}
 	
 	
-	@RequestMapping("pagingUser")
-	public String paigingUser(@RequestParam(defaultValue = "1") int page,
-							  @RequestParam(defaultValue = "5") int pageSize,
-							  Model model) {
-		
-		PageVo pageVo = new PageVo(page, pageSize);
-		
-		model.addAllAttributes(userService.selectPagingUser(pageVo));
-		
-		return "user/pagingUser";
-	}
+	/*
+	 * @RequestMapping("pagingUser") public String
+	 * paigingUser(@RequestParam(defaultValue = "1") int page,
+	 * 
+	 * @RequestParam(defaultValue = "5") int pageSize, Model model) {
+	 * 
+	 * PageVo pageVo = new PageVo(page, pageSize);
+	 * 
+	 * model.addAllAttributes(userService.selectPagingUser(pageVo));
+	 * 
+	 * return "user/pagingUser"; }
+	 */
 	
 	@RequestMapping("pagingUserTiles")
 	public String paigingUserTiles(@RequestParam(defaultValue = "1") int page,
@@ -85,6 +86,44 @@ public class UserController {
 		return "tiles.user.pagingUser";
 	}
 
+	//사용자 리스트가 없는 상태의 화면만 응답으로 생성 
+	@RequestMapping("pagingUserAjaxView")
+	public String pagingUserAjaxView() {
+		return "tiles.user.pagingUserAjax"; 
+	}
+	
+	
+	@RequestMapping("pagingUserAjax")
+	public String pagingUserAjax(@RequestParam(defaultValue = "1") int page,
+							  @RequestParam(defaultValue = "5") int pageSize,
+							  Model model) {
+		
+		PageVo pageVo = new PageVo(page, pageSize);
+		
+		model.addAllAttributes(userService.selectPagingUser(pageVo));
+		
+		//model 에 만들어져있는 문자열을 json 으로 만들어주는 역할을 하는것(jsonView)
+		return "jsonView";
+	}
+	
+	
+	@RequestMapping("pagingUserAjaxHtml")
+	public String pagingUserAjaxHtml(@RequestParam(defaultValue = "1") int page,
+							  @RequestParam(defaultValue = "5") int pageSize,
+							  Model model) {
+		
+		PageVo pageVo = new PageVo(page, pageSize);
+		
+		model.addAllAttributes(userService.selectPagingUser(pageVo));
+		
+		//model 에 만들어져있는 문자열을 json 으로 만들어주는 역할을 하는것(jsonView)
+		return "user/pagingUserAjaxHtml";
+	
+	// pagingUserAjaxHtml => /WEB-INF/views/user/pagingUserAjaxHtml.jsp
+	}
+	
+	
+	
 	//@RequestMapping("pagingUser")
 	public String pagingUser(PageVo pageVo) {
 		
@@ -102,34 +141,59 @@ public class UserController {
 		//return "user/user";
 	}
 	
-	@RequestMapping(path="modify", method=RequestMethod.GET)
-	public String modify(String userid, Model model) {
+	/*
+	 * @RequestMapping(path="modify", method=RequestMethod.GET) public String
+	 * modify(String userid, Model model) {
+	 * 
+	 * model.addAttribute("user", userService.selectUser(userid));
+	 * 
+	 * return "user/userModify"; }
+	 */
+	
+	@RequestMapping(path="modifyTiles", method=RequestMethod.GET)
+	public String modifyTiles(String userid, Model model) {
 		
 		model.addAttribute("user", userService.selectUser(userid));
 		
-		return "user/userModify";
+		return "tiles.user.userModify";
 	}
 	
-	@RequestMapping(path="modify", method=RequestMethod.POST)
-	public String modify(UserVo userVo, MultipartFile profile, RedirectAttributes ra, Model model) {
+	
+	
+
+	
+	
+	@RequestMapping(path="modifyTiles", method=RequestMethod.POST)
+	public String modifyTiles(UserVo userVo, MultipartFile profile, RedirectAttributes ra, Model model) {
 		
 		logger.debug("modify post");
 		
 		int updateCnt = 0;
+		String originalFilename = null;
+		String filename = null; 
 		if(profile.getSize() > 0) {
-			String originalFilename = profile.getOriginalFilename();
-			String filename = UUID.randomUUID().toString() + "." + originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+			originalFilename = profile.getOriginalFilename();
+			filename = UUID.randomUUID().toString() + "." + originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 			
 			userVo.setFilename(originalFilename);
 			userVo.setRealfilename("d:\\upload\\" + filename);
 			
 			try {
 				profile.transferTo(new File(userVo.getRealfilename()));
-				updateCnt = userService.modifyUser(userVo);
+				
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
 			}
+		}else {
+			
+			UserVo  beforeUserVo =  userService.selectUser(userVo.getUserid());
+			
+			userVo.setRealfilename(beforeUserVo.getRealfilename());
+			userVo.setFilename(beforeUserVo.getFilename());
+			
 		}
+		
+		updateCnt = userService.modifyUser(userVo);
 		
 		//사용자 수정이 정상적으로 된 경우	==> 해당 사용자의 상세조회 페이지로 이동
 		if(updateCnt == 1) {
@@ -138,24 +202,58 @@ public class UserController {
 		}
 		//사용자 수정이 비정상적으로 된 경우 ==> 해당 사용자의 정보 수정 페이지로 이동
 		else {
-			return modify(userVo.getUserid(), model);
+			return modifyTiles(userVo.getUserid(), model);
 		}
 	}
 	
+	
+	
 	@RequestMapping(path="regist", method=RequestMethod.GET)
 	public String regist() {
-		return "user/userRegist";
+		return "tiles.user.userRegist";
 	}
 	
+	/*
+	 * //bindingResult 객체는 command 객체 바로 뒤에 인자로 기술해야 한다
+	 * 
+	 * @RequestMapping(path="regist", method=RequestMethod.POST) public String
+	 * regist(@Valid UserVo userVo, BindingResult result, MultipartFile profile,
+	 * Model model) {
+	 * 
+	 * //new UserVoValidator().validate(userVo, result);
+	 * 
+	 * if(result.hasErrors()) { logger.debug("result has error"); return
+	 * "user/userRegist"; }
+	 * 
+	 * int insertCnt = 0; String originalFilename = ""; String filename = "";
+	 * 
+	 * if(profile.getSize() > 0) { originalFilename = profile.getOriginalFilename();
+	 * filename = UUID.randomUUID().toString() + "." +
+	 * originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+	 * 
+	 * userVo.setFilename(originalFilename); userVo.setRealfilename("d:\\upload\\" +
+	 * filename);
+	 * 
+	 * try { profile.transferTo(new File(userVo.getRealfilename())); } catch
+	 * (IllegalStateException | IOException e) { e.printStackTrace(); } }
+	 * 
+	 * insertCnt = userService.registUser(userVo);
+	 * 
+	 * //사용자 등록이 정상적으로 된 경우 ==> 사용자 페이징 리스트로 이동(1페이지) if(insertCnt == 1) { return
+	 * "redirect:/user/pagingUser"; } //사용자 수정이 비정상적으로 된 경우 ==> 사용자 등록 페이지로 이동(사용자가
+	 * 입력한 값 설정) else { return "user/userRegist"; } }
+	 */
+	
+	
 	//bindingResult 객체는 command 객체 바로 뒤에 인자로 기술해야 한다
-	@RequestMapping(path="regist", method=RequestMethod.POST)
-	public String regist(@Valid UserVo userVo, BindingResult result, MultipartFile profile, Model model) {
+	@RequestMapping(path="registTiles", method=RequestMethod.POST)
+	public String registTiles(@Valid UserVo userVo, BindingResult result, MultipartFile profile, Model model) {
 		
 		//new UserVoValidator().validate(userVo, result);
 		
 		if(result.hasErrors()) {
 			logger.debug("result has error");
-			return "user/userRegist";
+			return "tiles.user.userRegist";
 		}
 		
 		int insertCnt = 0;
@@ -180,16 +278,31 @@ public class UserController {
 		
 		//사용자 등록이 정상적으로 된 경우	==> 사용자 페이징 리스트로 이동(1페이지)
 		if(insertCnt == 1) {
-			return "redirect:/user/pagingUser";
+			return "redirect:/user/pagingUserTiles";
 		}
 		//사용자 수정이 비정상적으로 된 경우 ==> 사용자 등록 페이지로 이동(사용자가 입력한 값 설정)
 		else {
-			return "user/userRegist";
+			return "tiles.user.userRegist";
 		}
 	}
 	
-	@RequestMapping("delete")
-	public String delete(String userid) {
+	
+	
+	
+	/*
+	 * @RequestMapping("delete") public String delete(String userid) {
+	 * 
+	 * int deleteCnt = 0;
+	 * 
+	 * try { deleteCnt = userService.deleteUser(userid); }catch(Exception e) {
+	 * deleteCnt = -1; }
+	 * 
+	 * if(deleteCnt == 1) { return "redirect:/user/pagingUser"; } else { return
+	 * "redirect:/user/user?userid="+ userid; } }
+	 */
+	
+	@RequestMapping("deleteTiles")
+	public String deleteTiles(String userid) {
 		
 		int deleteCnt = 0;
 		
@@ -200,12 +313,16 @@ public class UserController {
 		}
 		
 		if(deleteCnt == 1) {
-			return "redirect:/user/pagingUser";
+			return "redirect:/user/pagingUserTiles";
 		}
 		else {
 			return "redirect:/user/user?userid="+ userid;
 		}
 	}
+	
+	
+	
+	
 	
 	@RequestMapping("excelDownload")
 	public String excelDownload(Model model) {

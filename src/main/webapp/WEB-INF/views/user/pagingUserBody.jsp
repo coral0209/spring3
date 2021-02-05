@@ -59,7 +59,7 @@ $(function(){
 					     전체 페이지 수 : 4페이지
 					 --%> 
 					 <li class="prev">
-						<a href="${cp }/user/pagingUser?page=1&pageSize=${pageVo.pageSize}">«</a>
+						<a href="${cp }/user/pagingUserTiles?page=1&pageSize=${pageVo.pageSize}">«</a>
 					</li>
 					
 					<c:forEach begin="1" end="${pagination }" var="i"> 
@@ -68,13 +68,13 @@ $(function(){
 								<li class="active"><span>${i }</span></li>
 							</c:when>
 							<c:otherwise>
-								<li><a href="${cp }/user/pagingUser?page=${i }&pageSize=${pageVo.pageSize}">${i }</a></li>
+								<li><a href="${cp }/user/pagingUserTiles?page=${i }&pageSize=${pageVo.pageSize}">${i }</a></li>
 							</c:otherwise>
 						</c:choose>
 					</c:forEach>
 					
 					<li class="next">
-						<a href="${cp }/user/pagingUser?page=${pagiNation }&pageSize=${pageVo.pageSize}">»</a>
+						<a href="${cp }/user/pagingUserTiles?page=${pagiNation }&pageSize=${pageVo.pageSize}">»</a>
 					</li>
 				</ul>
 			</div>

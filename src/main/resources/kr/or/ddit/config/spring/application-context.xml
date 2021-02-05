@@ -41,6 +41,8 @@
 	</bean>
 	
 	<bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+	
+	
 	<bean id="fd" class="kr.or.ddit.view.FileDownloadView"/>
 	<bean id="userExcelDownloadView" class="kr.or.ddit.view.ExcelDownloadView"/>
 	
